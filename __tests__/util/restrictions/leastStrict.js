@@ -1,4 +1,4 @@
-export default function LessRestrictedGroup() {
+export default function LeastStrict() {
   return {
     types: {
       account: ['id', 'last_active_date'],

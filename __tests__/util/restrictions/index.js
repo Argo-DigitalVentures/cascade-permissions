@@ -1,2 +1,2 @@
-export { default as LessRestrictedGroup } from './lessStrictGroup';
-export { default as VeryRestrictedGroup } from './veryStrictGroup';
+export { default as LeastStrict } from './leastStrict';
+export { default as MostStrict } from './mostStrict';
