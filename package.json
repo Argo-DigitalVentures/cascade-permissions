@@ -2,22 +2,22 @@
   "name": "cascade-permissions",
   "version": "0.2.0",
   "private": false,
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "license": "MIT",
   "author": "Bryan Chu <bryan.chu@argogroupus.com>",
   "contributors": [
     "Bryan Chu <bryan.p.chu+github@gmail.com>"
   ],
+  "engines": {
+    "node": "8.11.3"
+  },
   "homepage": "https://github.com/Argo-DigitalVentures/cascade-permissions/",
   "scripts": {
     "babel-node": "babel-node",
-    "build": "babel lib --out-dir dist",
-    "clean": "rimraf dist",
     "coverage": "jest --collectCoverageFrom=lib/**.js --coverage lib",
     "eslint-check": "eslint lib/** --print-config .eslintrc.js | eslint-config-prettier-check",
     "lint": "eslint lib/**",
     "lint:fix": "eslint --fix lib/**",
-    "prepublishOnly": "npm run clean && npm run build",
     "test": "jest",
     "test:watch": "jest --watch --verbose"
   },
