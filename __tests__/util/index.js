@@ -1,3 +1,3 @@
 'use strict';
 export { BaseRoles, BaseTypes } from './types';
-export { LessRestrictedGroup, VeryRestrictedGroup } from './restrictions';
+export { LeastStrict, MostStrict } from './restrictions';

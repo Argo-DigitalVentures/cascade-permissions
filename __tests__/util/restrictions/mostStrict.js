@@ -1,4 +1,4 @@
-export default function VeryRestrictedGroup() {
+export default function MostRestrictedGroup() {
   return {
     types: {
       account: [
