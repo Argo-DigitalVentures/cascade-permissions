@@ -1,8 +1,8 @@
 {
   "name": "cascade-permissions",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": false,
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "license": "MIT",
   "author": "Bryan Chu <bryan.chu@argogroupus.com>",
   "contributors": [
@@ -14,10 +14,15 @@
   "homepage": "https://github.com/Argo-DigitalVentures/cascade-permissions/",
   "scripts": {
     "babel-node": "babel-node",
+    "build": "babel lib --out-dir dist",
+    "clean": "rimraf dist",
     "coverage": "jest --collectCoverageFrom=lib/**.js --coverage lib",
+    "demo": "nodemon --exec npm run babel-node -- ./demo.js",
+    "demo:debug": "cross-env NODE_ENV=debug npm run demo",
     "eslint-check": "eslint lib/** --print-config .eslintrc.js | eslint-config-prettier-check",
     "lint": "eslint lib/**",
     "lint:fix": "eslint --fix lib/**",
+    "prepublishOnly": "npm run clean && npm run build",
     "test": "jest",
     "test:watch": "jest --watch --verbose"
   },
@@ -30,7 +35,6 @@
     "babel-core": "^6.26.3",
     "babel-eslint": "8.2.3",
     "babel-jest": "^23.0.1",
-    "babel-loader": "8.0.0-beta.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-preset-env": "^1.7.0",
