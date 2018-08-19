@@ -2,14 +2,14 @@
 // begin imports /////////////
 //////////////////////////////
 import chalk from 'chalk';
-import { appSymbols, BaseFactory, util } from '../lib';
-import { BaseRoles, BaseTypes } from './util';
-import { DefineByExclusionKeys, getDomainTypes, getUniqueKeys } from '../lib/helper';
+import { appSymbols, BaseFactory, helper, util } from '../../lib';
+import { BaseRoles, BaseTypes } from '../../util';
 
 //////////////////////////////
 // begin setup ///////////////
 //////////////////////////////
 const { _defineType, _permittedKeys } = appSymbols;
+const { DefineByExclusionKeys, getDomainTypes, getUniqueKeys } = helper;
 const { symbolize } = util;
 const { admin, basic, moderator } = BaseRoles();
 const { account, forum, message, transaction } = BaseTypes();
@@ -24,7 +24,7 @@ const allRoleKeys = getDomainTypes(BaseRoles());
 //////////////////////////////
 // begin tests ///////////////
 //////////////////////////////
-describe(chalk.yellow.bold.underline('Definitions'), () => {
+describe(chalk.yellow.bold.underline('Define Types'), () => {
   let Types;
   let Roles;
   beforeAll(() => {
@@ -39,7 +39,7 @@ describe(chalk.yellow.bold.underline('Definitions'), () => {
         undefined,
         'from created "Types" factory',
         key,
-        `defining ${key} for "Types" factory`
+        `defining ${key} for "Types" factory`,
       );
     });
     Roles = BaseFactory('roles', {}, allRole(), 'from created "Roles"');
@@ -53,7 +53,7 @@ describe(chalk.yellow.bold.underline('Definitions'), () => {
         undefined,
         'from created "Roles" factory',
         key,
-        `defining ${key} for "Types" factory`
+        `defining ${key} for "Types" factory`,
       );
     });
   });

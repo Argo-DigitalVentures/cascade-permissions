@@ -17,6 +17,6 @@ module.exports = {
   },
   rules: {
     'no-unused-vars': ['error', { vars: 'all', args: 'after-used', ignoreRestSiblings: false }],
-    'prettier/prettier': ['error', { singleQuote: true, trailingComma: 'es5' }],
+    'prettier/prettier': ['error', { printWidth: 140, singleQuote: true, trailingComma: 'all' }],
   },
 };
