@@ -3,7 +3,7 @@
 //////////////////////////////
 import chalk from 'chalk';
 import { appSymbols, BaseFactory, util, helper } from './lib';
-import { BaseRoles, BaseTypes, LeastStrict, MostStrict } from './__tests__/util';
+import { BaseRoles, BaseTypes, LeastStrict, MostStrict } from './util';
 
 const { DefineByExclusionKeys, getDomainTypes, getRestrictedDomainList, getUniqueKeys, typeWrapper } = helper;
 
