@@ -8,7 +8,7 @@ import { BaseRoles, BaseTypes, LeastStrict, MostStrict } from '../../util';
 //////////////////////////////
 // begin setup ///////////////
 //////////////////////////////
-const { _defineType, _inherit, _permittedKeys, _restrictedOwnKeysAdd, _restrictedOwnTypesAdd } = appSymbols;
+const { _defineType, _inherit, _permittedKeys } = appSymbols;
 const { DefineByExclusionKeys, getDomainTypes, getRestrictedDomainList, getUniqueKeys } = helper;
 const { symbolize } = util;
 const { admin, basic, moderator } = BaseRoles();
@@ -19,6 +19,10 @@ const allRoleKeys = getDomainTypes(BaseRoles());
 const allTypeKeys = getDomainTypes(BaseTypes());
 const allRole = () => getUniqueKeys(admin(), basic(), moderator());
 const allType = () => getUniqueKeys(account(), forum(), message(), transaction());
+const baseObjects = {
+  roles: BaseRoles,
+  types: BaseTypes,
+};
 const RolesDefinedByExclusionKeys = () => DefineByExclusionKeys(BaseRoles());
 const TypesDefinedByExclusionKeys = () => DefineByExclusionKeys(BaseTypes());
 const restricted = () => ({
@@ -55,7 +59,7 @@ describe(`${chalk.yellow.bold.underline('Inheritance')}: applying "${chalk.blue.
         undefined,
         'from created "Roles" factory',
         key,
-        `defining ${key} for "Types" factory`
+        `defining ${key} for "Types" factory`,
       );
     });
     Types = BaseFactory('types', {}, allType(), 'from created "Types"');
@@ -69,7 +73,7 @@ describe(`${chalk.yellow.bold.underline('Inheritance')}: applying "${chalk.blue.
         undefined,
         'from created "Types" factory',
         key,
-        `defining ${key} for "Types" factory`
+        `defining ${key} for "Types" factory`,
       );
     });
     Groups = BaseFactory('demo', {}, { [symbolize('roles')]: Roles, [symbolize('types')]: Types });
@@ -95,46 +99,48 @@ describe(`${chalk.yellow.bold.underline('Inheritance')}: applying "${chalk.blue.
   demoGroups.forEach(demoGroup => {
     describe(`Group: "${chalk.blue.bold(demoGroup)}"`, () => {
       const demoGroupRestrictedData = restrictedData()[demoGroup] || {};
-      allTypeKeys.forEach(key => {
-        const demoGroupRestrictedTypes = demoGroupRestrictedData.types || {};
-        const demoGroupTypeRestrictedKeys = demoGroupRestrictedTypes[key] || [];
-        if (demoGroupTypeRestrictedKeys.length) {
+      allRoleKeys.forEach(key => {
+        const testType = 'roles';
+        const demoGroupRestricted = demoGroupRestrictedData[testType] || {};
+        const demoGroupRestrictedKeys = demoGroupRestricted[key] || [];
+        if (demoGroupRestrictedKeys.length) {
           describe(`inheriting "${chalk.yellow.bold(key)}"`, () => {
-            const modifiedBaseTypeKeys = Object.keys(BaseTypes()[key]()).sort();
-            it(`expects definitions to match [${chalk.blue.bold.italic(modifiedBaseTypeKeys)}]`, () => {
-              const demoGroupTypeKeys = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)][_permittedKeys]().sort();
-              expect(demoGroupTypeKeys).toEqual(modifiedBaseTypeKeys);
+            const modifiedBaseKeys = Object.keys(baseObjects[testType]()[key]()).sort();
+            it(`expects definitions to match [${chalk.blue.bold.italic(modifiedBaseKeys)}]`, () => {
+              const demoGroupKeys = Groups[symbolize(demoGroup)][symbolize(testType)][symbolize(key)][_permittedKeys]().sort();
+              expect(demoGroupKeys).toEqual(modifiedBaseKeys);
             });
           });
         }
-        if (demoGroup !== 'admin' && restricted()[demoGroup].types.includes(key)) {
+        if (demoGroup !== 'admin' && restricted()[demoGroup][testType].includes(key)) {
           describe(`restricted "${chalk.green.bold(key)}"`, () => {
             it(`expects "${chalk.yellow.bold(key)}" to be ${chalk.red.bold('undefined')}`, () => {
-              const group = Groups[symbolize(demoGroup)][symbolize('types')];
+              const group = Groups[symbolize(demoGroup)][symbolize(testType)];
               const groupType = group[symbolize(key)];
               expect(groupType).toBeUndefined();
             });
           });
         }
       });
-      allRoleKeys.forEach(key => {
-        const demoGroupRestrictedRoles = demoGroupRestrictedData.roles || {};
-        const demoGroupRoleRestrictedKeys = demoGroupRestrictedRoles[key] || [];
-        if (demoGroupRoleRestrictedKeys.length) {
+      allTypeKeys.forEach(key => {
+        const testType = 'types';
+        const demoGroupRestricted = demoGroupRestrictedData[testType] || {};
+        const demoGroupRestrictedKeys = demoGroupRestricted[key] || [];
+        if (demoGroupRestrictedKeys.length) {
           describe(`inheriting "${chalk.yellow.bold(key)}"`, () => {
-            const modifiedBaseRoleKeys = Object.keys(BaseRoles()[key]()).sort();
-            it(`expects definitions to match [${chalk.blue.bold.italic(modifiedBaseRoleKeys)}]`, () => {
-              const demoGroupRoleKeys = Groups[symbolize(demoGroup)][symbolize('roles')][symbolize(key)][_permittedKeys]().sort();
-              expect(demoGroupRoleKeys).toEqual(modifiedBaseRoleKeys);
+            const modifiedBaseKeys = Object.keys(baseObjects[testType]()[key]()).sort();
+            it(`expects definitions to match [${chalk.blue.bold.italic(modifiedBaseKeys)}]`, () => {
+              const demoGroupKeys = Groups[symbolize(demoGroup)][symbolize(testType)][symbolize(key)][_permittedKeys]().sort();
+              expect(demoGroupKeys).toEqual(modifiedBaseKeys);
             });
           });
         }
-        if (demoGroup !== 'admin' && restricted()[demoGroup].roles.includes(key)) {
+        if (demoGroup !== 'admin' && restricted()[demoGroup][testType].includes(key)) {
           describe(`restricted "${chalk.green.bold(key)}"`, () => {
             it(`expects "${chalk.yellow.bold(key)}" to be ${chalk.red.bold('undefined')}`, () => {
-              const group = Groups[symbolize(demoGroup)][symbolize('roles')];
-              const groupRole = group[symbolize(key)];
-              expect(groupRole).toBeUndefined();
+              const group = Groups[symbolize(demoGroup)][symbolize(testType)];
+              const groupType = group[symbolize(key)];
+              expect(groupType).toBeUndefined();
             });
           });
         }

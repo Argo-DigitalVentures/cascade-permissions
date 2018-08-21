@@ -3,7 +3,7 @@
 //////////////////////////////
 import chalk from 'chalk';
 import { appSymbols, BaseFactory, helper, util } from '../../lib';
-import { BaseRoles, BaseTypes, LeastStrict, MostStrict } from '../../util';
+import { BaseRoles, BaseTypes, LeastStrict, MostStrict, TestRoles, TestTypes } from '../../util';
 
 //////////////////////////////
 // begin setup ///////////////
@@ -17,12 +17,9 @@ const { account, forum, message, transaction } = BaseTypes();
 const demoGroups = ['admin', 'leastStrict', 'mostStrict'];
 const allRoleKeys = getDomainTypes(BaseRoles());
 const allTypeKeys = getDomainTypes(BaseTypes());
+const { TypeWrapper } = helper;
 const allRole = () => getUniqueKeys(admin(), basic(), moderator());
 const allType = () => getUniqueKeys(account(), forum(), message(), transaction());
-const baseObjects = {
-  roles: BaseRoles,
-  types: BaseTypes,
-};
 const RolesDefinedByExclusionKeys = () => DefineByExclusionKeys(BaseRoles());
 const TypesDefinedByExclusionKeys = () => DefineByExclusionKeys(BaseTypes());
 const restricted = () => ({
@@ -43,7 +40,7 @@ const restrictedData = () => ({
 //////////////////////////////
 // begin tests ///////////////
 //////////////////////////////
-describe(`${chalk.yellow.bold.underline('Inheritance')}: applying "${chalk.blue.bold('keys')}" and "${chalk.blue.bold(
+describe(`${chalk.yellow.bold.underline('Wrapping Data')}: with applied "${chalk.blue.bold('keys')}" and "${chalk.blue.bold(
   'types',
 )}" restrictions`, () => {
   let Groups;
@@ -104,65 +101,68 @@ describe(`${chalk.yellow.bold.underline('Inheritance')}: applying "${chalk.blue.
       const demoGroupRestrictedData = restrictedData()[demoGroup] || {};
       allRoleKeys.forEach(key => {
         const testType = 'roles';
-        const demoGroupRestricted = demoGroupRestrictedData[testType] || {};
-        const demoGroupRestrictedKeys = demoGroupRestricted[key] || [];
-        if (demoGroupRestrictedKeys.length) {
-          describe(`inheriting "${chalk.yellow.bold(key)}" with restrictedKeys [${chalk.blue.italic(demoGroupRestrictedKeys)}] `, () => {
-            const modifiedBaseRoleKeys = Object.keys(baseObjects[testType]()[key]())
-              .filter(item => !demoGroupRestrictedKeys.includes(item))
+        const demoGroupRestrictedRoles = demoGroupRestrictedData.roles || {};
+        const demoGroupRoleRestrictedKeys = demoGroupRestrictedRoles[key] || [];
+        if (demoGroupRoleRestrictedKeys.length) {
+          describe(`wrapping "${chalk.yellow.bold(key)}" with restrictedKeys [${chalk.blue.italic(demoGroupRoleRestrictedKeys)}] `, () => {
+            const testData = TestRoles()[key]();
+            const modifiedBaseRoleKeys = Object.keys(BaseRoles()[key]())
+              .filter(item => !demoGroupRoleRestrictedKeys.includes(item))
               .sort();
             it(`expects definitions to match [${chalk.blue.bold.italic(modifiedBaseRoleKeys)}]`, () => {
-              const demoGroupRoleKeys = Groups[symbolize(demoGroup)][symbolize(testType)][symbolize(key)][_permittedKeys]().sort();
+              const wrappedData = TypeWrapper(Groups, testType)(demoGroup, key, testData);
+              const demoGroupRoleKeys = Object.keys(wrappedData).sort();
               expect(demoGroupRoleKeys).toEqual(modifiedBaseRoleKeys);
             });
-            it(`expects definitions to ${chalk.red.bold.underline('not')} contain [${chalk.blue.bold.italic(
-              demoGroupRestrictedKeys,
-            )}]`, () => {
-              const demoGroupKeys = Groups[symbolize(demoGroup)][symbolize(testType)][symbolize(key)][_permittedKeys]().sort();
-              expect(demoGroupKeys).toEqual(expect.not.arrayContaining(demoGroupRestrictedKeys));
-            });
+            // it(`expects definitions to ${chalk.red.bold.underline('not')} contain [${chalk.blue.bold.italic(
+            //   demoGroupRoleRestrictedKeys,
+            // )}]`, () => {
+            //   const demoGroupRoleKeys = Groups[symbolize(demoGroup)][symbolize('roles')][symbolize(key)][_permittedKeys]().sort();
+            //   expect(demoGroupRoleKeys).toEqual(expect.not.arrayContaining(demoGroupRoleRestrictedKeys));
+            // });
           });
         }
-        if (demoGroup !== 'admin' && restricted()[demoGroup].roles.includes(key)) {
-          describe(`restricted "${chalk.green.bold(key)}"`, () => {
-            it(`expects "${chalk.yellow.bold(key)}" to be ${chalk.red.bold('undefined')}`, () => {
-              const group = Groups[symbolize(demoGroup)][symbolize(testType)];
-              const groupRole = group[symbolize(key)];
-              expect(groupRole).toBeUndefined();
-            });
-          });
-        }
+        // if (demoGroup !== 'admin' && restricted()[demoGroup].roles.includes(key)) {
+        //   describe(`restricted "${chalk.green.bold(key)}"`, () => {
+        //     it(`expects "${chalk.yellow.bold(key)}" to be ${chalk.red.bold('undefined')}`, () => {
+        //       const group = Groups[symbolize(demoGroup)][symbolize('roles')];
+        //       const groupRole = group[symbolize(key)];
+        //       expect(groupRole).toBeUndefined();
+        //     });
+        //   });
+        // }
       });
       allTypeKeys.forEach(key => {
-        const testType = 'types';
-        const demoGroupRestricted = demoGroupRestrictedData[testType] || {};
-        const demoGroupRestrictedKeys = demoGroupRestricted[key] || [];
-        if (demoGroupRestrictedKeys.length) {
-          describe(`inheriting "${chalk.yellow.bold(key)}" with restrictedKeys [${chalk.blue.italic(demoGroupRestrictedKeys)}] `, () => {
-            const modifiedBaseRoleKeys = Object.keys(baseObjects[testType]()[key]())
-              .filter(item => !demoGroupRestrictedKeys.includes(item))
-              .sort();
-            it(`expects definitions to match [${chalk.blue.bold.italic(modifiedBaseRoleKeys)}]`, () => {
-              const demoGroupRoleKeys = Groups[symbolize(demoGroup)][symbolize(testType)][symbolize(key)][_permittedKeys]().sort();
-              expect(demoGroupRoleKeys).toEqual(modifiedBaseRoleKeys);
-            });
-            it(`expects definitions to ${chalk.red.bold.underline('not')} contain [${chalk.blue.bold.italic(
-              demoGroupRestrictedKeys,
-            )}]`, () => {
-              const demoGroupKeys = Groups[symbolize(demoGroup)][symbolize(testType)][symbolize(key)][_permittedKeys]().sort();
-              expect(demoGroupKeys).toEqual(expect.not.arrayContaining(demoGroupRestrictedKeys));
-            });
-          });
-        }
-        if (demoGroup !== 'admin' && restricted()[demoGroup].roles.includes(key)) {
-          describe(`restricted "${chalk.green.bold(key)}"`, () => {
-            it(`expects "${chalk.yellow.bold(key)}" to be ${chalk.red.bold('undefined')}`, () => {
-              const group = Groups[symbolize(demoGroup)][symbolize(testType)];
-              const groupRole = group[symbolize(key)];
-              expect(groupRole).toBeUndefined();
-            });
-          });
-        }
+        //   const demoGroupRestrictedTypes = demoGroupRestrictedData.types || {};
+        //   const demoGroupTypeRestrictedKeys = demoGroupRestrictedTypes[key] || [];
+        //   if (demoGroupTypeRestrictedKeys.length) {
+        //     describe(`inheriting "${chalk.yellow.bold(key)}" with restrictedKeys [${chalk.blue.italic(
+        //       demoGroupTypeRestrictedKeys,
+        //     )}] `, () => {
+        //       const modifiedBaseTypeKeys = Object.keys(BaseTypes()[key]())
+        //         .filter(item => !demoGroupTypeRestrictedKeys.includes(item))
+        //         .sort();
+        //       it(`expects definitions to match [${chalk.blue.bold.italic(modifiedBaseTypeKeys)}]`, () => {
+        //         const demoGroupTypeKeys = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)][_permittedKeys]().sort();
+        //         expect(demoGroupTypeKeys).toEqual(modifiedBaseTypeKeys);
+        //       });
+        //       it(`expects definitions to ${chalk.red.bold.underline('not')} contain [${chalk.blue.bold.italic(
+        //         demoGroupTypeRestrictedKeys,
+        //       )}]`, () => {
+        //         const demoGroupTypeKeys = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)][_permittedKeys]().sort();
+        //         expect(demoGroupTypeKeys).toEqual(expect.not.arrayContaining(demoGroupTypeRestrictedKeys));
+        //       });
+        //     });
+        //   }
+        //   if (demoGroup !== 'admin' && restricted()[demoGroup].types.includes(key)) {
+        //     describe(`restricted "${chalk.green.bold(key)}"`, () => {
+        //       it(`expects "${chalk.yellow.bold(key)}" to be ${chalk.red.bold('undefined')}`, () => {
+        //         const group = Groups[symbolize(demoGroup)][symbolize('types')];
+        //         const groupType = group[symbolize(key)];
+        //         expect(groupType).toBeUndefined();
+        //       });
+        //     });
+        //   }
       });
     });
   });
