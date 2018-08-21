@@ -1,5 +1,4 @@
 /node_modules
 /__tests__
 /lib
-/util
-
+/test_helpers

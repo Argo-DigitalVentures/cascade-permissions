@@ -3,12 +3,12 @@
 //////////////////////////////
 import chalk from 'chalk';
 import { appSymbols, BaseFactory, helper, util } from '../../lib';
-import { BaseRoles, BaseTypes, LeastStrict, MostStrict, TestRoles, TestTypes } from '../../util';
+import { BaseRoles, BaseTypes, LeastStrict, MostStrict, TestRoles } from '../../test_helpers';
 
 //////////////////////////////
 // begin setup ///////////////
 //////////////////////////////
-const { _defineType, _inherit, _permittedKeys } = appSymbols;
+const { _defineType, _inherit } = appSymbols;
 const { DefineByExclusionKeys, getDomainTypes, getRestrictedDomainList, getUniqueKeys } = helper;
 const { symbolize } = util;
 const { admin, basic, moderator } = BaseRoles();
