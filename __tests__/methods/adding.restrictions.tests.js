@@ -19,6 +19,10 @@ const allRoleKeys = getDomainTypes(BaseRoles());
 const allTypeKeys = getDomainTypes(BaseTypes());
 const allRole = () => getUniqueKeys(admin(), basic(), moderator());
 const allType = () => getUniqueKeys(account(), forum(), message(), transaction());
+const baseObjects = {
+  roles: BaseRoles,
+  types: BaseTypes,
+};
 const RolesDefinedByExclusionKeys = () => DefineByExclusionKeys(BaseRoles());
 const TypesDefinedByExclusionKeys = () => DefineByExclusionKeys(BaseTypes());
 const restricted = () => ({
@@ -65,7 +69,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
         undefined,
         'from created "Roles" factory',
         key,
-        `defining ${key} for "Types" factory`
+        `defining ${key} for "Types" factory`,
       );
     });
     Types = BaseFactory('types', {}, allType(), 'from created "Types"');
@@ -79,7 +83,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
         undefined,
         'from created "Types" factory',
         key,
-        `defining ${key} for "Types" factory`
+        `defining ${key} for "Types" factory`,
       );
     });
     Groups = BaseFactory('demo', {}, { [symbolize('roles')]: Roles, [symbolize('types')]: Types });
@@ -115,10 +119,10 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
             .sort();
 
           describe(`restricting keys [${chalk.blue.italic(demoGroupRoleRestrictedKeys)}] to ${chalk.blue.bold(
-            demoGroup
+            demoGroup,
           )} "${chalk.yellow.bold(key)}" definitions`, () => {
             it(`restricts [${chalk.blue.italic(demoGroupRoleRestrictedKeys)}] from ${chalk.blue.bold(demoGroup)} "${chalk.yellow.bold(
-              key
+              key,
             )}" definitions`, () => {
               const demoGroupRole = Groups[symbolize(demoGroup)][symbolize('roles')][symbolize(key)];
               const preDemoGroupRoleKeys = demoGroupRole[_permittedKeys]().sort();
@@ -143,10 +147,10 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
                 otherDemoGroupPermittedRoles.includes(key)
               ) {
                 describe(`restricting keys [${chalk.blue.italic(demoGroupRoleRestrictedKeys)}] to ${chalk.blue.bold(
-                  demoGroup
+                  demoGroup,
                 )} "${chalk.yellow.bold(key)}" definitions has ${chalk.red.bold.underline('NO')} side-effects`, () => {
                   it(`${chalk.blue.bold(otherDemoGroup)} "${chalk.green.bold(key)}" definitions ${chalk.yellow.bold(
-                    'STILL'
+                    'STILL',
                   )} contains [${chalk.blue.italic(demoGroupRoleRestrictedKeys)}]`, () => {
                     const demoGroupRole = Groups[symbolize(demoGroup)][symbolize('roles')][symbolize(key)];
                     const otherDemoGroupRole = Groups[symbolize(otherDemoGroup)][symbolize('roles')][symbolize(key)];
@@ -191,10 +195,10 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
               otherDemoGroupPermittedRoles.includes(key)
             ) {
               describe(`restricting type "${chalk.green.bold(key)}" to ${chalk.blue.bold(demoGroup)} has ${chalk.red.bold.underline(
-                'NO'
+                'NO',
               )} side-effects`, () => {
                 it(`${chalk.blue.bold(otherDemoGroup)} "${chalk.green.bold(key)}" is ${chalk.yellow.bold.underline(
-                  'STILL'
+                  'STILL',
                 )} defined`, () => {
                   const demoGroupRoles = Groups[symbolize(demoGroup)][symbolize('roles')];
                   const otherDemoGroupRoles = Groups[symbolize(otherDemoGroup)][symbolize('roles')];
@@ -226,10 +230,10 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
             .sort();
 
           describe(`restricting keys [${chalk.blue.italic(demoGroupTypeRestrictedKeys)}] to ${chalk.blue.bold(
-            demoGroup
+            demoGroup,
           )} "${chalk.yellow.bold(key)}" definitions`, () => {
             it(`restricts [${chalk.blue.italic(demoGroupTypeRestrictedKeys)}] from ${chalk.blue.bold(demoGroup)} "${chalk.yellow.bold(
-              key
+              key,
             )}" definitions`, () => {
               const demoGroupType = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)];
               const predemoGroupTypeKeys = demoGroupType[_permittedKeys]().sort();
@@ -254,10 +258,10 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
                 otherDemoGroupPermittedTypes.includes(key)
               ) {
                 describe(`restricting keys [${chalk.blue.italic(demoGroupTypeRestrictedKeys)}] to ${chalk.blue.bold(
-                  demoGroup
+                  demoGroup,
                 )} "${chalk.yellow.bold(key)}" definitions has ${chalk.red.bold.underline('NO')} side-effects`, () => {
                   it(`${chalk.blue.bold(otherDemoGroup)} "${chalk.green.bold(key)}" definitions ${chalk.yellow.bold(
-                    'STILL'
+                    'STILL',
                   )} contains [${chalk.blue.italic(demoGroupTypeRestrictedKeys)}]`, () => {
                     const demoGroupType = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)];
                     const otherDemoGroupType = Groups[symbolize(otherDemoGroup)][symbolize('types')][symbolize(key)];
@@ -302,10 +306,10 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
               otherDemoGroupPermittedTypes.includes(key)
             ) {
               describe(`restricting type "${chalk.green.bold(key)}" to ${chalk.blue.bold(demoGroup)} has ${chalk.red.bold.underline(
-                'NO'
+                'NO',
               )} side-effects`, () => {
                 it(`${chalk.blue.bold(otherDemoGroup)} "${chalk.green.bold(key)}" is ${chalk.yellow.bold.underline(
-                  'STILL'
+                  'STILL',
                 )} defined`, () => {
                   const demoGroupTypes = Groups[symbolize(demoGroup)][symbolize('types')];
                   const otherDemoGroupTypes = Groups[symbolize(otherDemoGroup)][symbolize('types')];
