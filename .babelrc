@@ -4,8 +4,10 @@
       "env",
       {
         "targets": {
-          "browsers": ["ie >= 10"]
-        }
+          "browsers": ["last 2 versions", "ie >= 10", "safari >= 7"],
+          "node": "6.10.3"
+        },
+        "useBuiltIns": true
       }
     ],
     "stage-0"
@@ -17,3 +19,4 @@
   },
   "plugins": ["transform-es2015-modules-commonjs", "transform-es2017-object-entries", "transform-object-rest-spread"]
 }
+
