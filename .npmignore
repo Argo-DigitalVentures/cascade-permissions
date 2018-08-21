@@ -2,3 +2,6 @@
 /__tests__
 /lib
 /test_helpers
+
+gulpfile.babel.js
+jest.config.js
