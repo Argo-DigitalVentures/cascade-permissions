@@ -1,6 +1,6 @@
 {
   "name": "cascade-permissions",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "private": false,
   "main": "dist/index.js",
   "license": "MIT",
@@ -30,7 +30,8 @@
   ],
   "dependencies": {
     "cross-env": "^5.2.0",
-    "pluralize": "^7.0.0"
+    "pluralize": "^7.0.0",
+    "proxy-polyfill": "^0.3.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
