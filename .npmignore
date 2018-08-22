@@ -5,3 +5,7 @@
 
 gulpfile.babel.js
 jest.config.js
+.babelrc
+.editorconfig
+.eslintignore
+.eslintrc.js
