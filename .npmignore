@@ -1,2 +1,11 @@
 /node_modules
 /__tests__
+/lib
+/test_helpers
+
+gulpfile.babel.js
+jest.config.js
+.babelrc
+.editorconfig
+.eslintignore
+.eslintrc.js

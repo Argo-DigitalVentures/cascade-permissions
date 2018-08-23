@@ -3,7 +3,7 @@
 //////////////////////////////
 import chalk from 'chalk';
 import { appSymbols, BaseFactory, helper, util } from '../../lib';
-import { BaseRoles, BaseTypes } from '../../util';
+import { BaseRoles, BaseTypes } from '../../test_helpers';
 
 //////////////////////////////
 // begin setup ///////////////
