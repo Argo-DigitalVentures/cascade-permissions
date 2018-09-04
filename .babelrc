@@ -1,19 +1,9 @@
 {
-  "presets": [
-    [
-      "env",
-      {
-        "targets": {
-          "node": "6.3.1"
-        }
-      }
-    ],
-    "stage-0"
-  ],
+  "presets": [["@babel/preset-env", { "targets": { "node": "6.3.1" }, "useBuiltIns": "entry" }]],
   "env": {
     "test": {
-      "presets": [["env"]]
+      "presets": ["@babel/preset-env"]
     }
   },
-  "plugins": ["transform-es2015-modules-commonjs", "transform-es2017-object-entries"]
+  "plugins": ["@babel/plugin-syntax-object-rest-spread", "@babel/plugin-transform-modules-commonjs"]
 }

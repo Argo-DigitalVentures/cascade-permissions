@@ -1,3 +1,4 @@
+import '@babel/register';
 import babel from 'gulp-babel';
 import sourcemaps from 'gulp-sourcemaps';
 import del from 'del';
