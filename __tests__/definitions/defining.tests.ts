@@ -32,17 +32,21 @@ describe(chalk.yellow.bold.underline('Define Types'), () => {
       message: 'from created "Types"',
     });
     allTypeKeys.forEach(key => {
-      Types[_defineType](
-        key,
-        {
-          restrictedKeys: TypesDefinedByExclusionKeys()[key],
-          restrictedTypes: allTypeKeys.filter(item => item !== key),
-        },
-        undefined,
-        'from created "Types" factory',
-        key,
-        `defining ${key} for "Types" factory`
-      );
+      const test = Types[_defineType];
+      console.log('what is test', test);
+      // Types[_defineType](
+      //   key,
+      //   {
+      //     restrictedKeys: TypesDefinedByExclusionKeys()[key],
+      //     restrictedTypes: allTypeKeys.filter(item => item !== key),
+      //   },
+      //   undefined,
+      //   {
+      //     caller: key,
+      //     message: 'from created "Types" factory',
+      //     subject: `defining ${key} for "Types" factory`,
+      //   }
+      // );
     });
     Roles = BaseFactory('roles', {}, allRole(), {
       message: 'from created "Roles"',
@@ -55,9 +59,11 @@ describe(chalk.yellow.bold.underline('Define Types'), () => {
           restrictedTypes: allRoleKeys.filter(target => target !== key),
         },
         undefined,
-        'from created "Roles" factory',
-        key,
-        `defining ${key} for "Types" factory`
+        {
+          caller: key,
+          message: 'from created "Roles" factory',
+          subject: `defining ${key} for "Types" factory`,
+        }
       );
     });
   });

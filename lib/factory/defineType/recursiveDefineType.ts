@@ -1,5 +1,6 @@
 import { basename } from 'path';
 
+import { PrototypeInterface } from '../../../compiler/interfaces';
 import { Signature } from '../../../compiler/types';
 import { _clone, _inheritType, _permittedTypes, _propId, _restrictedTypes } from '../../symbols';
 import { desymbolize, getUniqueArrayItems, symbolize } from '../../util';
@@ -9,20 +10,19 @@ const defaultCaller = filename;
 const defaultSubject = 'defining new type';
 
 const recursiveDefinedType: Signature = (name, restricted = {}, prototype = this) => {
-  const symbolizeName = symbolize(name);
+  const symbolizeName: string = symbolize(name) as any;
+  const { restrictedTypes = [] } = restricted;
   const restrictedTypesList = getUniqueArrayItems([
     ...(prototype[_restrictedTypes] ? prototype[_restrictedTypes]() : []),
-    ...restricted.restrictedTypes.map((symbol: string | symbol) => symbolize(symbol)),
+    ...restrictedTypes.map((symbol: string | symbol) => symbolize(symbol)),
     symbolizeName,
     this[_propId],
   ]);
   const defaultCloneMessage = `"${desymbolize(this[_propId])}" is cloning ${desymbolize(symbolizeName)}`;
 
-  const func = prototype[_permittedTypes]();
-  // return prototype[_permittedTypes]()
-  return func
-    .filter(type => !restrictedTypesList.includes(type))
-    .reduce((col, permittedType) => {
+  return prototype[_permittedTypes]()
+    .filter((type: symbol) => !restrictedTypesList.includes(type))
+    .reduce((col: PrototypeInterface, permittedType: string) => {
       const defaultInheritMessage = `"${desymbolize(symbolizeName)}" is inheriting definedType "${desymbolize(permittedType)}"`;
       col[symbolizeName][_inheritType](permittedType, restricted, prototype[permittedType], defaultInheritMessage, defaultCaller, defaultSubject);
       return col;

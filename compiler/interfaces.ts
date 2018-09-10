@@ -1,4 +1,4 @@
-import { _clone, _propId } from '../lib/symbols';
+import { _clone, _propId, _permittedKeys, _permittedTypes, _restrictedKeys, _restrictedTypes } from '../lib/symbols';
 import { RestrictedKeysSignature, RestrictedKeysType, RestrictedTypesSignature, Signature } from './types';
 
 export interface ChalkConfigInterface {
@@ -49,15 +49,12 @@ export interface CloneInterface {
   };
 }
 export interface PrototypeInterface {
-  // _permittedTypes: RestrictedTypesSignature;
-  // [index: string]: {
-  //   configurable?: boolean;
-  //   enumerable?: boolean;
-  //   value: Signature | RestrictedTypesSignature | RestrictedKeysSignature;
-  //   writable?: boolean;
-  //   get?(): Signature | RestrictedTypesSignature | RestrictedKeysSignature;
-  //   set?(v: any): void;
-  // };
-  [index: string]: () => RestrictedTypesSignature;
-  // [index: string]: () => Signature | RestrictedTypesSignature | RestrictedKeysSignature;
+  [key: string]: {
+    configurable?: boolean;
+    enumerable?: boolean;
+    value: Signature;
+    writable?: boolean;
+    get?(): any;
+    set?(v: any): void;
+  };
 }
