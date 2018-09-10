@@ -1,4 +1,11 @@
 'use strict';
-export { BaseRoles, BaseTypes } from './types';
-export { LeastStrict, MostStrict } from './restrictions';
-export { TestRoles, TestTypes } from './data';
+Object.defineProperty(exports, "__esModule", { value: true });
+var types_1 = require("./types");
+exports.BaseRoles = types_1.BaseRoles;
+exports.BaseTypes = types_1.BaseTypes;
+var restrictions_1 = require("./restrictions");
+exports.LeastStrict = restrictions_1.LeastStrict;
+exports.MostStrict = restrictions_1.MostStrict;
+var data_1 = require("./data");
+exports.TestRoles = data_1.TestRoles;
+exports.TestTypes = data_1.TestTypes;
