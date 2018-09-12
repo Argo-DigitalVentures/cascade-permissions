@@ -1,11 +1,11 @@
-import Admin from './admin';
-import Basic from './basic';
-import Moderator from './moderator';
+import admin from './admin';
+import basic from './basic';
+import moderator from './moderator';
 
 export default function BaseRoles() {
   return {
-    admin: () => Admin(),
-    basic: () => Basic(),
-    moderator: () => Moderator(),
+    admin,
+    basic,
+    moderator,
   };
 }
