@@ -2,17 +2,21 @@
 
 ### Description
 
-This package attempts to manage the burden of authorization upfront by defining the application's data shapes and the roles authorized to each property.
+This package addresses the burden of managing multiple types of users with different, or at times, overlapping permissions.
 
+<details><summary>Background</summary>
 
-<details><summary>The Authorization Problem</summary>
+#### Scaling
+While working on an MVP application with role-based users that were:
 
-### Authorization of data or subset of data
+1. restricted from viewing a particular type of data
+2. restricted from viewing a property / properties on an authorized data.
 
-<details>
-<summary>Multiple Conditionals Hell</summary>
+We ran into issues scaling to other business-units as the legacy code base used conditionals which I named "multiple conditional hell"
 
-##### Assume this object represents the relevant data
+##### Multiple-Conditional-Hell Example
+
+###### Assume this object represents the relevant data
 
 ```javascript
 const dataFromStore = {
@@ -24,7 +28,7 @@ const dataFromStore = {
 };
 ```
 
-##### Starts with an innucous conditional authorizing the "power_user" role users
+##### 1. Started with an innucous conditional authorizing the "power_user" role users
 
 ```javascript
 // Using an ES6-Promise
@@ -37,7 +41,7 @@ return getUser(id).then(user => {
 });
 ```
 
-##### As the app scales, the use-cases expands
+##### 2. As the application grew, the use-cases expanded
 
 ```javascript
 return getUser(id).then(user => {
@@ -49,7 +53,7 @@ return getUser(id).then(user => {
 });
 ```
 
-##### Expands some more
+##### 3. Expanded some more
 
 ```javascript
 return getUser(id).then(user => {
@@ -61,7 +65,7 @@ return getUser(id).then(user => {
 });
 ```
 
-##### What happens if a subset of the "authorized" users have a subset of the data?
+##### 4. When we moved out of the MVP phase, we encountered the problem that an authorized user required a subset of the permissions.
 
 ```javascript
 return getUser(id).then(user => {
@@ -78,15 +82,23 @@ return getUser(id).then(user => {
 ```
 
 </details>
-</details>
+
+### Package Details
 
 <details><summary>How It Works</summary>
+
 Using the Javascript's native **prototype-chain** and an "**exclusion**" list approach, role-based permissions become inheritable and therefore, may be cascaded across different groups / subgroups.
 </details>
 
 <details><summary>Package Features</summary>
-- Inheritable permissions (changes a rule in the parent is dynamically reflected in the parent).
-- Wrapping data objects with the configured permissions (ES6-proxies, sorry IE users).
+
+1. **Inheritable permissions**
+  - rules changes in the parent is dynamically reflected in the child.
+
+2. **Restrictinng data access**
+Using ES6-proxies (sorry IE users) and the user's runtime permissions:
+  - accessing a restricted property will return undefined
+  - setting a restricted property will result in an authorization error
 
 </details>
 <details>
@@ -100,6 +112,7 @@ Using the Javascript's native **prototype-chain** and an "**exclusion**" list ap
 ### **Installation**
 
 <details><summary>install package from npm with node 8+ or transpile the package</summary>
+
 ```sh
 npm i cascade-permissions
 ```
@@ -107,7 +120,9 @@ npm i cascade-permissions
 
 ### Step 1: Basic Definitions
 
-The examplex create two domains, "roles" and "types"
+Define the properties that represents your application's data shape.
+
+##### The example creates two domains, "roles" and "types"
 
 <details>
 <summary>Roles definition </summary>
