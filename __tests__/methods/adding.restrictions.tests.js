@@ -11,23 +11,12 @@ import { BaseRoles, BaseTypes, LeastStrict, MostStrict } from '../../test_helper
 const { _inherit, _permittedKeys, _restrictedOwnKeysAdd, _restrictedOwnTypesAdd } = appSymbols;
 const { CreateDomain } = helper;
 const { symbolize } = util;
-const { admin, basic, moderator } = BaseRoles();
-const { account, forum, message, transaction } = BaseTypes();
 
-const demoGroups = ['admin', 'leastStrict', 'mostStrict'];
-const allRoles = CreateDomain({
-  admin,
-  basic,
-  moderator,
-});
-const allTypes = CreateDomain({
-  account,
-  forum,
-  message,
-  transaction,
-});
+const demoGroups = ['super_user', 'leastStrict', 'mostStrict'];
+const allRoles = CreateDomain(BaseRoles());
+const allTypes = CreateDomain(BaseTypes());
 const restricted = () => ({
-  admin: {
+  super_user: {
     roles: [],
     types: [],
   },
@@ -41,7 +30,7 @@ const restricted = () => ({
   },
 });
 const restrictedData = () => ({
-  admin: {
+  super_user: {
     roles: BaseRoles(),
     types: BaseTypes(),
   },
@@ -64,14 +53,14 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
     Groups = BaseFactory('demo', {}, { [symbolize('roles')]: Roles, [symbolize('types')]: Types });
     demoGroups.forEach(demoGroup => {
       const otherDemoGroups = demoGroups.filter(item => item !== demoGroup);
-      if (demoGroup === 'admin') {
+      if (demoGroup === 'super_user') {
         Groups[_inherit](demoGroup, {
           restrictedTypes: otherDemoGroups,
         });
       } else {
         const { roles = [], types = [] } = restricted()[demoGroup];
         Groups[_inherit](demoGroup, {
-          restrictedTypes: [...roles, ...types, ...otherDemoGroups],
+          restrictedTypes: [{ [symbolize('roles')]: roles }, { [symbolize('types')]: types }, ...otherDemoGroups],
         });
       }
     });
@@ -87,7 +76,8 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
       allRoles()
         .getUniqueTypes()
         .forEach(key => {
-          const demoGroupRestrictedRoles = demoGroupRestrictedData.roles || {};
+          const domaineType = 'roles';
+          const demoGroupRestrictedRoles = demoGroupRestrictedData[domaineType] || {};
           const demoGroupRoleRestrictedKeys = demoGroupRestrictedRoles[key] || [];
           if (demoGroupRoleRestrictedKeys.length) {
             const modifiedBaseRoleKeys = allRoles()
@@ -100,7 +90,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
               it(`restricts [${chalk.blue.italic(demoGroupRoleRestrictedKeys)}] from ${chalk.blue.bold(demoGroup)} "${chalk.yellow.bold(
                 key,
               )}" definitions`, () => {
-                const demoGroupRole = Groups[symbolize(demoGroup)][symbolize('roles')][symbolize(key)];
+                const demoGroupRole = Groups[symbolize(demoGroup)][symbolize(domaineType)][symbolize(key)];
                 const preDemoGroupRoleKeys = demoGroupRole[_permittedKeys]().sort();
                 // ///////////////////////////////
                 // adding restrictedKeys here
@@ -114,7 +104,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
                 expect(preDemoGroupRoleKeys).not.toEqual(postdemoGroupRoleKeys);
               });
               demoGroups.filter(item => item !== demoGroup).forEach(otherDemoGroup => {
-                const otherDemoGroupRoles = restrictedData()[otherDemoGroup].roles;
+                const otherDemoGroupRoles = restrictedData()[otherDemoGroup][domaineType];
                 const otherDemoGroupRoleRestrictedKeys = otherDemoGroupRoles[key] || [];
                 const otherDemoGroupPermittedRoles = Object.keys(otherDemoGroupRoles);
                 if (
@@ -128,8 +118,8 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
                     it(`${chalk.blue.bold(otherDemoGroup)} "${chalk.green.bold(key)}" definitions ${chalk.yellow.bold(
                       'STILL',
                     )} contains [${chalk.blue.italic(demoGroupRoleRestrictedKeys)}]`, () => {
-                      const demoGroupRole = Groups[symbolize(demoGroup)][symbolize('roles')][symbolize(key)];
-                      const otherDemoGroupRole = Groups[symbolize(otherDemoGroup)][symbolize('roles')][symbolize(key)];
+                      const demoGroupRole = Groups[symbolize(demoGroup)][symbolize(domaineType)][symbolize(key)];
+                      const otherDemoGroupRole = Groups[symbolize(otherDemoGroup)][symbolize(domaineType)][symbolize(key)];
                       const predemoGroupRoleKeys = demoGroupRole[_permittedKeys]().sort();
                       const preOtherDemoGroupRoleKeys = otherDemoGroupRole[_permittedKeys]().sort();
                       // ///////////////////////////////
@@ -150,7 +140,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
             });
             describe(`restricting type "${chalk.yellow.bold(key)}" to ${chalk.blue.bold(demoGroup)}`, () => {
               it(`removes "${chalk.yellow.bold(key)}" from ${chalk.blue.bold(demoGroup)}`, () => {
-                const demoGroupRoles = Groups[symbolize(demoGroup)][symbolize('roles')];
+                const demoGroupRoles = Groups[symbolize(demoGroup)][symbolize(domaineType)];
                 const predemoGroupRole = demoGroupRoles[symbolize(key)];
                 // ///////////////////////////////
                 // adding restrictedTypes here
@@ -162,7 +152,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
               });
             });
             demoGroups.filter(item => item !== demoGroup).forEach(otherDemoGroup => {
-              const otherDemoGroupRoles = restrictedData()[otherDemoGroup].roles;
+              const otherDemoGroupRoles = restrictedData()[otherDemoGroup][domaineType];
               const otherDemoGroupRoleRestrictedKeys = otherDemoGroupRoles[key] || [];
               const otherDemoGroupPermittedRoles = Object.keys(otherDemoGroupRoles);
               if (
@@ -176,8 +166,8 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
                   it(`${chalk.blue.bold(otherDemoGroup)} "${chalk.green.bold(key)}" is ${chalk.yellow.bold.underline(
                     'STILL',
                   )} defined`, () => {
-                    const demoGroupRoles = Groups[symbolize(demoGroup)][symbolize('roles')];
-                    const otherDemoGroupRoles = Groups[symbolize(otherDemoGroup)][symbolize('roles')];
+                    const demoGroupRoles = Groups[symbolize(demoGroup)][symbolize(domaineType)];
+                    const otherDemoGroupRoles = Groups[symbolize(otherDemoGroup)][symbolize(domaineType)];
                     const predemoGroupRole = demoGroupRoles[symbolize(key)];
                     const preOtherDemoGroupRole = otherDemoGroupRoles[symbolize(key)];
                     // ///////////////////////////////
@@ -200,7 +190,8 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
       allTypes()
         .getUniqueTypes()
         .forEach(key => {
-          const demoGroupRestrictedTypes = demoGroupRestrictedData.types || {};
+          const domainType = 'types';
+          const demoGroupRestrictedTypes = demoGroupRestrictedData[domainType] || {};
           const demoGroupTypeRestrictedKeys = demoGroupRestrictedTypes[key] || [];
           if (demoGroupTypeRestrictedKeys.length) {
             const modifiedBaseTypeKeys = allTypes()
@@ -214,7 +205,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
               it(`restricts [${chalk.blue.italic(demoGroupTypeRestrictedKeys)}] from ${chalk.blue.bold(demoGroup)} "${chalk.yellow.bold(
                 key,
               )}" definitions`, () => {
-                const demoGroupType = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)];
+                const demoGroupType = Groups[symbolize(demoGroup)][symbolize(domainType)][symbolize(key)];
                 const predemoGroupTypeKeys = demoGroupType[_permittedKeys]().sort();
                 // ///////////////////////////////
                 // adding restrictedKeys here
@@ -228,7 +219,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
                 expect(predemoGroupTypeKeys).not.toEqual(postdemoGroupTypeKeys);
               });
               demoGroups.filter(item => item !== demoGroup).forEach(otherDemoGroup => {
-                const otherDemoGroupTypes = restrictedData()[otherDemoGroup].types;
+                const otherDemoGroupTypes = restrictedData()[otherDemoGroup][domainType];
                 const otherDemoGroupTypeRestrictedKeys = otherDemoGroupTypes[key] || [];
                 const otherDemoGroupPermittedTypes = Object.keys(otherDemoGroupTypes);
                 if (
@@ -242,8 +233,8 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
                     it(`${chalk.blue.bold(otherDemoGroup)} "${chalk.green.bold(key)}" definitions ${chalk.yellow.bold(
                       'STILL',
                     )} contains [${chalk.blue.italic(demoGroupTypeRestrictedKeys)}]`, () => {
-                      const demoGroupType = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)];
-                      const otherDemoGroupType = Groups[symbolize(otherDemoGroup)][symbolize('types')][symbolize(key)];
+                      const demoGroupType = Groups[symbolize(demoGroup)][symbolize(domainType)][symbolize(key)];
+                      const otherDemoGroupType = Groups[symbolize(otherDemoGroup)][symbolize(domainType)][symbolize(key)];
                       const predemoGroupTypeKeys = demoGroupType[_permittedKeys]().sort();
                       const preOtherDemoGroupTypeKeys = otherDemoGroupType[_permittedKeys]().sort();
                       // ///////////////////////////////
@@ -264,7 +255,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
             });
             describe(`restricting type "${chalk.yellow.bold(key)}" to ${chalk.blue.bold(demoGroup)}`, () => {
               it(`removes "${chalk.yellow.bold(key)}" from ${chalk.blue.bold(demoGroup)}`, () => {
-                const demoGroupTypes = Groups[symbolize(demoGroup)][symbolize('types')];
+                const demoGroupTypes = Groups[symbolize(demoGroup)][symbolize(domainType)];
                 const predemoGroupType = demoGroupTypes[symbolize(key)];
                 // ///////////////////////////////
                 // adding restrictedTypes here
@@ -276,7 +267,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
               });
             });
             demoGroups.filter(item => item !== demoGroup).forEach(otherDemoGroup => {
-              const otherDemoGroupTypes = restrictedData()[otherDemoGroup].types;
+              const otherDemoGroupTypes = restrictedData()[otherDemoGroup][domainType];
               const otherDemoGroupTypeRestrictedKeys = otherDemoGroupTypes[key] || [];
               const otherDemoGroupPermittedTypes = Object.keys(otherDemoGroupTypes);
               if (
@@ -290,8 +281,8 @@ describe(`${chalk.yellow.bold.underline('Methods')}: applying"${chalk.blue.bold(
                   it(`${chalk.blue.bold(otherDemoGroup)} "${chalk.green.bold(key)}" is ${chalk.yellow.bold.underline(
                     'STILL',
                   )} defined`, () => {
-                    const demoGroupTypes = Groups[symbolize(demoGroup)][symbolize('types')];
-                    const otherDemoGroupTypes = Groups[symbolize(otherDemoGroup)][symbolize('types')];
+                    const demoGroupTypes = Groups[symbolize(demoGroup)][symbolize(domainType)];
+                    const otherDemoGroupTypes = Groups[symbolize(otherDemoGroup)][symbolize(domainType)];
                     const predemoGroupType = demoGroupTypes[symbolize(key)];
                     const preOtherDemoGroupType = otherDemoGroupTypes[symbolize(key)];
                     // ///////////////////////////////

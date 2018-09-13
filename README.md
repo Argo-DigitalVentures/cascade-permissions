@@ -7,6 +7,7 @@ This package addresses the burden of managing multiple types of users with diffe
 <details><summary>Background</summary>
 
 #### Scaling
+
 While working on an MVP application with role-based users that were:
 
 1. restricted from viewing a particular type of data
@@ -88,17 +89,20 @@ return getUser(id).then(user => {
 <details><summary>How It Works</summary>
 
 Using the Javascript's native **prototype-chain** and an "**exclusion**" list approach, role-based permissions become inheritable and therefore, may be cascaded across different groups / subgroups.
+
 </details>
 
 <details><summary>Package Features</summary>
 
 1. **Inheritable permissions**
-  - rules changes in the parent is dynamically reflected in the child.
+
+- rules changes in the parent is dynamically reflected in the child.
 
 2. **Restrictinng data access**
-Using ES6-proxies (sorry IE users) and the user's runtime permissions:
-  - accessing a restricted property will return undefined
-  - setting a restricted property will result in an authorization error
+   Using ES6-proxies (sorry IE users) and the user's runtime permissions:
+
+- accessing a restricted property will return undefined
+- setting a restricted property will result in an authorization error
 
 </details>
 <details>
@@ -116,6 +120,7 @@ Using ES6-proxies (sorry IE users) and the user's runtime permissions:
 ```sh
 npm i cascade-permissions
 ```
+
 </details>
 
 ### Step 1: Basic Definitions
@@ -443,24 +448,28 @@ restrictedTypes: ['account','message']
 </details>
 
 ### Step 3: Inherit Domain Rules
+
 The fun part begins. How do you inherit these rules for your application?
 
 ##### Example assumes application has 2 groups of users "internal" and "external".
 
 ```javascript
-import { appSymbols, BaseFactory, helper } from 'cascade-permissions'
+import { appSymbols, BaseFactory, helper } from 'cascade-permissions';
 
 // assume allRoles is defined as we did earlier
-const Roles = allRoles().createRules('rules')
+const Roles = allRoles().createRules('rules');
 // assume allTypes is defined as we did earlier
-const Types = allTypes().createRules('types')
+const Types = allTypes().createRules('types');
 
 // create a Groups object
-const Groups = BaseFactory('groups', {}, {
-  [Symbol('roles')]: Roles,
-  [Symbol('types')]: Types
-})
-
+const Groups = BaseFactory(
+  'groups',
+  {},
+  {
+    [Symbol('roles')]: Roles,
+    [Symbol('types')]: Types,
+  }
+);
 ```
 
 #### Scenarios
@@ -472,8 +481,8 @@ const Groups = BaseFactory('groups', {}, {
 
 ```javascript
 Groups[_inherit]('internal', {
-  restrictedTypes: ['external']
-})
+  restrictedTypes: ['external'],
+});
 ```
 
 The interal user will have all "roles" and all "types"
@@ -483,10 +492,11 @@ The interal user will have all "roles" and all "types"
 <details><summary>2. Inherting a subset of the rules</summary>
 
 ##### Situation: "external" users are restricted from "admin" role and "transaction" type
+
 ```javascript
 Groups[_inherit]('internal', {
-  restrictedTypes: ['internal', 'admin', 'transaction']
-})
+  restrictedTypes: ['internal', 'admin', 'transaction'],
+});
 ```
 
 The external user will have all "roles" except the "admin" role, and all "types" except the "transaction" types.
@@ -500,14 +510,13 @@ The external user will have all "roles" except the "admin" role, and all "types"
 ```javascript
 Groups[_inherit]('internal', {
   restrictedKeys: ['id'],
-  restrictedTypes: ['internal', 'admin', 'transaction']
-})
+  restrictedTypes: ['internal', 'admin', 'transaction'],
+});
 ```
 
 The external user will have all "roles" except the "admin" role, and all "types" except the "transaction" types. In addition, any domain types with an "id" property is not visible to the user.
 
 </details>
-
 
 <details><summary>4. Inherting a subset of the rules + domain specific restrictions</summary>
 
@@ -517,13 +526,31 @@ The external user will have all "roles" except the "admin" role, and all "types"
 Groups[_inherit]('internal', {
   restrictedKeys: {
     account: ['first_name', 'last_name'],
-    basic: ['last_active_date']
+    basic: ['last_active_date'],
   },
-  restrictedTypes: ['internal', 'admin', 'transaction']
-})
+  restrictedTypes: ['internal', 'admin', 'transaction'],
+});
 ```
 
 The external user will have all "roles" except the "admin" role, and all "types" except the "transaction" types. In addition, the "basic" role's "last_active_date" and the "account" type's "first_name" & "last_name" are not visible.
+
+</details>
+
+<details><summary>5. Name Conficts (domains sharing same name)</summary>
+
+#### Situation: Scenario of above step + there is a name conflict. In both the **roles** and **types** domain, there is a "**workspace**" domain type and external user is authorized only for the "types" domain.
+
+```javascript
+Groups[_inherit]('internal', {
+  restrictedKeys: {
+    account: ['first_name', 'last_name'],
+    basic: ['last_active_date'],
+  },
+  restrictedTypes: ['internal', { [Symbol('types')]: ['transaction'] }, { [Symbol('roles')]: ['admin', 'workspace'] }],
+});
+```
+
+The external user will have all "roles" except the "admin" and "workspace" role, and all "types" except the "transaction" types. In addition, the "basic" role's "last_active_date" and the "account" type's "first_name" & "last_name" are not visible.
 
 </details>
 
@@ -537,28 +564,31 @@ import { helper } from 'cascade-permissions';
 const { TypeWrapper } = helper;
 
 const someUsersBasicData = {
-    id: 1023,
-    last_active_date: '2018-01-18',
-    signup_date: '2017-10-14',
-    username: 'john.doe'
-}
+  id: 1023,
+  last_active_date: '2018-01-18',
+  signup_date: '2017-10-14',
+  username: 'john.doe',
+};
 
 //assume the Roles and Types is already defined;
-const Groups = BaseFactory('groups', {}, {
-  [Symbol('roles')]: Roles,
-  [Symbol('types')]: Types
-})
+const Groups = BaseFactory(
+  'groups',
+  {},
+  {
+    [Symbol('roles')]: Roles,
+    [Symbol('types')]: Types,
+  }
+);
 Groups[_inherit]('internal', {
   restrictedKeys: {
     account: ['first_name', 'last_name'],
-    basic: ['last_active_date']
+    basic: ['last_active_date'],
   },
-  restrictedTypes: ['internal', 'admin', 'transaction']
-})
+  restrictedTypes: ['internal', 'admin', 'transaction'],
+});
 const wrappedData = TypeWrapper(Groups, 'roles')('internal', 'basic', someUsersBasicData);
 
-wrapperData.id // 1023
-wrappedData.last_active_date // undefined
-wrappedData.last_active_date = Date() // the key "last_active_date" is restricted and cannot be set
-
+wrapperData.id; // 1023
+wrappedData.last_active_date; // undefined
+wrappedData.last_active_date = Date(); // the key "last_active_date" is restricted and cannot be set
 ```

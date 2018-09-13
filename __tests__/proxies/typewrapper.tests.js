@@ -11,21 +11,10 @@ import { BaseRoles, BaseTypes, LeastStrict, MostStrict, TestRoles } from '../../
 const { _inherit } = appSymbols;
 const { CreateDomain, TypeWrapper } = helper;
 const { symbolize } = util;
-const { admin, basic, moderator } = BaseRoles();
-const { account, forum, message, transaction } = BaseTypes();
 
-const demoGroups = ['admin', 'leastStrict', 'mostStrict'];
-const allRoles = CreateDomain({
-  admin,
-  basic,
-  moderator,
-});
-const allTypes = CreateDomain({
-  account,
-  forum,
-  message,
-  transaction,
-});
+const demoGroups = ['super_user', 'leastStrict', 'mostStrict'];
+const allRoles = CreateDomain(BaseRoles());
+const allTypes = CreateDomain(BaseTypes());
 const restricted = () => ({
   leastStrict: {
     roles: allRoles().getRestrictedTypes(LeastStrict().roles),
@@ -56,7 +45,7 @@ describe(`${chalk.yellow.bold.underline('Wrapping Data')}: with applied "${chalk
     Groups = BaseFactory('demo', {}, { [symbolize('roles')]: Roles, [symbolize('types')]: Types });
     demoGroups.forEach(demoGroup => {
       const otherDemoGroups = demoGroups.filter(item => item !== demoGroup);
-      if (demoGroup === 'admin') {
+      if (demoGroup === 'super_user') {
         Groups[_inherit](demoGroup, {
           restrictedTypes: otherDemoGroups,
         });
@@ -64,7 +53,7 @@ describe(`${chalk.yellow.bold.underline('Wrapping Data')}: with applied "${chalk
         const { roles = [], types = [] } = restricted()[demoGroup];
         Groups[_inherit](demoGroup, {
           restrictedKeys: restrictedData()[demoGroup],
-          restrictedTypes: [...roles, ...types, ...otherDemoGroups],
+          restrictedTypes: [{ [symbolize('roles')]: roles }, { [symbolize('types')]: types }, ...otherDemoGroups],
         });
       }
     });
@@ -80,8 +69,8 @@ describe(`${chalk.yellow.bold.underline('Wrapping Data')}: with applied "${chalk
       allRoles()
         .getUniqueTypes()
         .forEach(key => {
-          const testType = 'roles';
-          const demoGroupRestrictedRoles = demoGroupRestrictedData.roles || {};
+          const domainType = 'roles';
+          const demoGroupRestrictedRoles = demoGroupRestrictedData[domainType] || {};
           const demoGroupRoleRestrictedKeys = demoGroupRestrictedRoles[key] || [];
 
           if (demoGroupRestrictedRoles[key]) {
@@ -94,7 +83,7 @@ describe(`${chalk.yellow.bold.underline('Wrapping Data')}: with applied "${chalk
                 .filter(item => !demoGroupRoleRestrictedKeys.includes(item))
                 .sort();
               it(`expects definitions to match [${chalk.blue.bold.italic(modifiedBaseRoleKeys)}]`, () => {
-                const wrappedData = TypeWrapper(Groups, testType)(demoGroup, key, testData);
+                const wrappedData = TypeWrapper(Groups, domainType)(demoGroup, key, testData);
                 const demoGroupRoleKeys = Object.keys(wrappedData).sort();
                 expect(demoGroupRoleKeys).toEqual(modifiedBaseRoleKeys);
               });
