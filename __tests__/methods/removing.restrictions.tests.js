@@ -11,21 +11,10 @@ import { BaseRoles, BaseTypes, LeastStrict, MostStrict } from '../../test_helper
 const { _inherit, _permittedKeys, _restrictedOwnKeysRemove, _restrictedOwnTypesRemove } = appSymbols;
 const { CreateDomain } = helper;
 const { symbolize } = util;
-const { admin, basic, moderator } = BaseRoles();
-const { account, forum, message, transaction } = BaseTypes();
 
-const demoGroups = ['admin', 'leastStrict', 'mostStrict'];
-const allRoles = CreateDomain({
-  admin,
-  basic,
-  moderator,
-});
-const allTypes = CreateDomain({
-  account,
-  forum,
-  message,
-  transaction,
-});
+const demoGroups = ['super_user', 'leastStrict', 'mostStrict'];
+const allRoles = CreateDomain(BaseRoles());
+const allTypes = CreateDomain(BaseTypes());
 const restricted = () => ({
   leastStrict: {
     roles: allRoles().getRestrictedTypes(LeastStrict().roles),
@@ -56,7 +45,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: removing applied "${chalk.b
     Groups = BaseFactory('demo', {}, { [symbolize('roles')]: Roles, [symbolize('types')]: Types });
     demoGroups.forEach(demoGroup => {
       const otherDemoGroups = demoGroups.filter(item => item !== demoGroup);
-      if (demoGroup === 'admin') {
+      if (demoGroup === 'super_user') {
         Groups[_inherit](demoGroup, {
           restrictedTypes: otherDemoGroups,
         });
@@ -64,7 +53,7 @@ describe(`${chalk.yellow.bold.underline('Methods')}: removing applied "${chalk.b
         const { roles = [], types = [] } = restricted()[demoGroup];
         Groups[_inherit](demoGroup, {
           restrictedKeys: restrictedData()[demoGroup],
-          restrictedTypes: [...roles, ...types, ...otherDemoGroups],
+          restrictedTypes: [{ [symbolize('roles')]: roles }, { [symbolize('types')]: types }, ...otherDemoGroups],
         });
       }
     });
@@ -80,7 +69,8 @@ describe(`${chalk.yellow.bold.underline('Methods')}: removing applied "${chalk.b
       allRoles()
         .getUniqueTypes()
         .forEach(key => {
-          const demoGroupRestrictedRoles = demoGroupRestrictedData.roles || {};
+          const domainType = 'roles';
+          const demoGroupRestrictedRoles = demoGroupRestrictedData[domainType] || {};
           const demoGroupRoleRestrictedKeys = demoGroupRestrictedRoles[key] || [];
           if (demoGroupRoleRestrictedKeys.length) {
             describe(`removing "${chalk.yellow.bold(key)}" restrictedKeys [${chalk.blue.italic(demoGroupRoleRestrictedKeys)}] `, () => {
@@ -90,11 +80,11 @@ describe(`${chalk.yellow.bold.underline('Methods')}: removing applied "${chalk.b
               it(`expects initial definitions to ${chalk.red.bold.underline('not')} contain [${chalk.blue.bold.italic(
                 demoGroupRoleRestrictedKeys,
               )}]`, () => {
-                const demoGroupRoleKeys = Groups[symbolize(demoGroup)][symbolize('roles')][symbolize(key)][_permittedKeys]().sort();
+                const demoGroupRoleKeys = Groups[symbolize(demoGroup)][symbolize(domainType)][symbolize(key)][_permittedKeys]().sort();
                 expect(demoGroupRoleKeys).toEqual(expect.not.arrayContaining(demoGroupRoleRestrictedKeys));
               });
               it(`expects post-removal definitions to match [${chalk.blue.bold.italic(baseRoleKeys)}]`, () => {
-                const demoGroupRole = Groups[symbolize(demoGroup)][symbolize('roles')][symbolize(key)];
+                const demoGroupRole = Groups[symbolize(demoGroup)][symbolize(domainType)][symbolize(key)];
 
                 const demoGroupPreRoleKeys = demoGroupRole[_permittedKeys]().sort();
                 demoGroupRole[_restrictedOwnKeysRemove](demoGroupRoleRestrictedKeys);
@@ -105,15 +95,15 @@ describe(`${chalk.yellow.bold.underline('Methods')}: removing applied "${chalk.b
               });
             });
           }
-          if (demoGroup !== 'admin' && restricted()[demoGroup].roles.includes(key)) {
+          if (demoGroup !== 'super_user' && restricted()[demoGroup][domainType].includes(key)) {
             describe(`restricted "${chalk.green.bold(key)}"`, () => {
               it(`expects initial "${chalk.yellow.bold(key)}" to be ${chalk.red.bold('undefined')}`, () => {
-                const group = Groups[symbolize(demoGroup)][symbolize('roles')];
+                const group = Groups[symbolize(demoGroup)][symbolize(domainType)];
                 const groupRole = group[symbolize(key)];
                 expect(groupRole).toBeUndefined();
               });
               it(`expects post-removal type restriction "${chalk.yellow.bold(key)}" to be ${chalk.green.bold('defined')}`, () => {
-                const group = Groups[symbolize(demoGroup)][symbolize('roles')];
+                const group = Groups[symbolize(demoGroup)][symbolize(domainType)];
                 group[_restrictedOwnTypesRemove]([key]);
                 const groupRole = group[symbolize(key)];
                 expect(groupRole).toBeDefined();
@@ -124,7 +114,8 @@ describe(`${chalk.yellow.bold.underline('Methods')}: removing applied "${chalk.b
       allTypes()
         .getUniqueTypes()
         .forEach(key => {
-          const demoGroupRestrictedTypes = demoGroupRestrictedData.types || {};
+          const domainType = 'types';
+          const demoGroupRestrictedTypes = demoGroupRestrictedData[domainType] || {};
           const demoGroupTypeRestrictedKeys = demoGroupRestrictedTypes[key] || [];
           if (demoGroupTypeRestrictedKeys.length) {
             describe(`removing "${chalk.yellow.bold(key)}" restrictedKeys [${chalk.blue.italic(demoGroupTypeRestrictedKeys)}] `, () => {
@@ -134,11 +125,11 @@ describe(`${chalk.yellow.bold.underline('Methods')}: removing applied "${chalk.b
               it(`expects initial definitions to ${chalk.red.bold.underline('not')} contain [${chalk.blue.bold.italic(
                 demoGroupTypeRestrictedKeys,
               )}]`, () => {
-                const demoGroupTypeKeys = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)][_permittedKeys]().sort();
+                const demoGroupTypeKeys = Groups[symbolize(demoGroup)][symbolize(domainType)][symbolize(key)][_permittedKeys]().sort();
                 expect(demoGroupTypeKeys).toEqual(expect.not.arrayContaining(demoGroupTypeRestrictedKeys));
               });
               it(`expects post-removal definitions to match [${chalk.blue.bold.italic(baseTypeKeys)}]`, () => {
-                const demoGroupType = Groups[symbolize(demoGroup)][symbolize('types')][symbolize(key)];
+                const demoGroupType = Groups[symbolize(demoGroup)][symbolize(domainType)][symbolize(key)];
 
                 const demoGroupPreTypeKeys = demoGroupType[_permittedKeys]().sort();
                 demoGroupType[_restrictedOwnKeysRemove](demoGroupTypeRestrictedKeys);
@@ -149,15 +140,15 @@ describe(`${chalk.yellow.bold.underline('Methods')}: removing applied "${chalk.b
               });
             });
           }
-          if (demoGroup !== 'admin' && restricted()[demoGroup].types.includes(key)) {
+          if (demoGroup !== 'super_user' && restricted()[demoGroup][domainType].includes(key)) {
             describe(`restricted "${chalk.green.bold(key)}"`, () => {
               it(`expects initial "${chalk.yellow.bold(key)}" to be ${chalk.red.bold('undefined')}`, () => {
-                const group = Groups[symbolize(demoGroup)][symbolize('types')];
+                const group = Groups[symbolize(demoGroup)][symbolize(domainType)];
                 const groupType = group[symbolize(key)];
                 expect(groupType).toBeUndefined();
               });
               it(`expects post-removal type restriction "${chalk.yellow.bold(key)}" to be ${chalk.green.bold('defined')}`, () => {
-                const group = Groups[symbolize(demoGroup)][symbolize('types')];
+                const group = Groups[symbolize(demoGroup)][symbolize(domainType)];
                 group[_restrictedOwnTypesRemove]([key]);
                 const groupType = group[symbolize(key)];
                 expect(groupType).toBeDefined();

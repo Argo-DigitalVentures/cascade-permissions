@@ -11,20 +11,9 @@ import { BaseRoles, BaseTypes } from '../../test_helpers';
 const { _permittedKeys } = appSymbols;
 const { CreateDomain } = helper;
 const { symbolize } = util;
-const { admin, basic, moderator } = BaseRoles();
-const { account, forum, message, transaction } = BaseTypes();
 
-const allRoles = CreateDomain({
-  admin,
-  basic,
-  moderator,
-});
-const allTypes = CreateDomain({
-  account,
-  forum,
-  message,
-  transaction,
-});
+const allRoles = CreateDomain(BaseRoles());
+const allTypes = CreateDomain(BaseTypes());
 
 //////////////////////////////
 // begin tests ///////////////
