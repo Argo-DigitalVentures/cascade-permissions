@@ -1,6 +1,6 @@
 {
   "name": "cascade-permissions",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": false,
   "main": "dist/index.js",
   "license": "MIT",
@@ -38,7 +38,6 @@
     "babel-jest": "^23.0.1",
     "babel-plugin-transform-es2015-arrow-functions": "^6.22.0",
     "babel-plugin-transform-es2017-object-entries": "0.0.4",
-    "babel-polyfill": "^6.26.0",
     "babel-preset-env": "^1.7.0",
     "babel-preset-stage-0": "^6.24.1",
     "chalk": "^1.1.3",
